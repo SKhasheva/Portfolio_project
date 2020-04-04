@@ -1,0 +1,16 @@
+svkhashe@svkhashe-t470s MINGW64 ~/git/backend (master)
+$ cd /c/Users/svkhashe/AppData/Local/Programs/Python/Python36-32/
+
+svkhashe@svkhashe-t470s MINGW64 ~/AppData/Local/Programs/Python/Python36-32
+$ /c/Users/svkhashe/AppData/Local/Programs/Python/Python36-32/Scripts/pip install flask
+
+export FLASK_APP=project.py
+
+cd
+cd git/backend
+
+svkhashe@svkhashe-t470s MINGW64 ~/AppData/Local/Programs/Python/Python36-32
+$ python -m flask run
+
+
+
