@@ -39,7 +39,12 @@ def username():
 def logout():
     session.clear()
     return redirect('http://127.0.0.1:5000/login.html')
+##################################adding id to session####################################
+@app.route('/username/', methods=['GET'])
+def username():
+    return session['username']
 
+##################################adding id to session####################################
 
 
 
