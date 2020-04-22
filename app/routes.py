@@ -1,6 +1,7 @@
 from app import app
 from flask import json, request, redirect, send_from_directory, session
 import pyodbc
+import json
 
 @app.route('/')
 def index():
@@ -40,11 +41,33 @@ def logout():
     session.clear()
     return redirect('http://127.0.0.1:5000/login.html')
 ##################################adding id to session####################################
-@app.route('/username/', methods=['GET'])
-def username():
-    return session['username']
+
 
 ##################################adding id to session####################################
+@app.route('/chart/', methods=['GET'])
+def chartdata():
+    cursor = conn.cursor()
+    user_id = session['user_id']
+    try:
+        rows = cursor.execute("SELECT date, Invested, PortfolioCost FROM Portfolio.dbo.StatAgregated where User_id =? ORDER BY date ASC", user_id).fetchall()
+    except Exception as err:
+        return '', 400
+    stats = []
+    for row in rows:
+        stats.append({"date": row.date,
+                      "invested": row.Invested,
+                      "portfolioCost": row.PortfolioCost})
+
+    print(json.dumps(stats), flush=True)
+
+    return json.dumps(stats)
+
+
+
+
+
+
+
 
 
 

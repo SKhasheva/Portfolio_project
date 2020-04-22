@@ -1,38 +1,44 @@
 
 import React, { useState }  from 'react';
-import './css/App.css';
-import ChartGoogle from './componets/ChartGoogle';
-import Currency from './componets/Currency';
-
+/*import ReactDOM from 'react-dom';
+/* import './index.css';
+import App from './App'; */
+import './style_reprospective.css';
+import Header from './Header';
+import Chart from './Chart';
+import ChartGoogle from './ChartGoogle';
+//import Test from ''''
 
 
 function App() {
 
-
-  const[isHome, setHome] = useState(<div></div>);
-  const [isChartGoogle, setChartGoogle] = useState(<div></div>);
-  
-
-/*
-  function showHome() {
-    setHome(<div>
-                <Currency currency='EUR'/>
-                <Currency currency='USD'/>
-            </div>);
-    setChartGoogle(<div></div>);
+ /* function showAccount() {
+    setRestorspective(Test())
+    //return(<div>ttt</div>)
   }
   */
 
- function showHome() {
-  setHome(<div>
-              rrrrrr
-          </div>);
-  setChartGoogle(<div></div>);
-}
+  const[isHome, setHome] = useState(<div></div>);
+  const [isChart, setChart] = useState(<div></div>);
+  const [isChartGoogle, setChartGoogle] = useState(<div></div>);
+  
+
+  function showChart() {
+    setChart(<Chart />);
+    setChartGoogle(<div></div>);
+  //  return (<div>rrr</div>);
+  }
+
+  function showHome() {
+    setHome(<p>Home</p>);
+    setChart(<div></div>);
+    setChartGoogle(<div></div>);
+  }
 
   function showChartGoogle() {
     setChartGoogle(<ChartGoogle />);
-    setHome(<div></div>);
+    setChart(<div></div>);
+  //  return (<div>rrr</div>);
   }
 
   return (
@@ -47,11 +53,11 @@ function App() {
                 </li>
                 <li></li>
                 <li>
-                    <a href="#Chart" onClick={showChartGoogle}>Chart</a>
+                    <a href="#Chart" onClick={showChart}>Portfolio Chart</a>
                 </li>
                 <li></li>
                 <li>
-                    <a href="#Details" onClick={<div></div>}>Details</a>
+                    <a href="#Details" onClick={showChartGoogle}>Details</a>
                 </li>
                 <li></li>
                 <li>
@@ -62,8 +68,9 @@ function App() {
         </nav>
         
       </header> 
-      <br />
+      <div></div>
       {isHome}
+      {isChart}
       {isChartGoogle} 
     
     </div>
@@ -74,6 +81,17 @@ function App() {
 export default App;
 
 
+/*
+
+      <br />
+      <button onClick={()=> showAccount()}>Btn1</button>
+      <br />
+      <button onClick={()=> <p>Hello!</p>}>Btn2</button>
+      <br />
+      {isRetrospective}
+
+
+   
 
   
 
