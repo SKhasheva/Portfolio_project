@@ -4,7 +4,7 @@ import os
 import urllib3
 import xml.etree.ElementTree as ET
 
-app = Flask(__name__, static_url_path='', static_folder='web')
+app = Flask(__name__, static_url_path='', static_folder='static')
 #app.config['SESSION_TYPE'] = 'filesystem'
 app.testing = True
 #app.secret_key = 'testing'

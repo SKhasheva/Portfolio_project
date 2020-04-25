@@ -1,5 +1,5 @@
 from app import app
-from flask import json, request, redirect, send_from_directory, session
+from flask import json, request, redirect, send_from_directory, session, render_template
 import pyodbc
 import json
 
@@ -27,7 +27,7 @@ def get_login():
     if row and row.password.strip() == pas:
         session['username'] = row.name
         session['user_id'] = row.id
-        return redirect('http://127.0.0.1:5000/index.html')
+        return redirect('http://127.0.0.1:5000/arik')
     else:
         return redirect('http://127.0.0.1:5000/loginError.html')
 ##################################adding id to session####################################
@@ -98,7 +98,9 @@ def cha():
     return json.dumps(stats)
 
 ##################################getting shares list with prices####################################
-
+@app.route("/arik")
+def my_index():
+    return render_template("index.html", flask_token="Hello   world")
 
 
 
