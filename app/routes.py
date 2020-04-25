@@ -35,7 +35,7 @@ def get_login():
 def username():
     return session['username']
 
-##################################adding id to session####################################
+##################################logout############################################
 @app.route('/logout/', methods=['GET'])
 def logout():
     session.clear()
@@ -43,7 +43,7 @@ def logout():
 ##################################adding id to session####################################
 
 
-##################################adding id to session####################################
+##################################getting data  for chart####################################
 @app.route('/chart/', methods=['GET'])
 def chartdata():
     cursor = conn.cursor()
@@ -58,9 +58,47 @@ def chartdata():
                       "invested": row.Invested,
                       "portfolioCost": row.PortfolioCost})
 
-    print(json.dumps(stats), flush=True)
 
     return json.dumps(stats)
+
+##################################getting shares list with prices####################################
+def sharespricelist():
+    url = 'https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQTF/securities.xml?iss.meta=off&iss.only=securities&securities.columns=SECID,SECNAME,PREVADMITTEDQUOTE'
+    http = urllib3.PoolManager()
+    r = http.request('GET', url)
+    root = ET.fromstring(r.data)
+
+    shareslist = []
+
+    for child in root[0][0]:
+        shareslist.append({"ticker": child.attrib['SECID'],
+                           "name": child.attrib['SECNAME'],
+                           "price":child.attrib['PREVADMITTEDQUOTE']})
+
+    return shareslist
+
+    #print(child.attrib['SECID'],child.attrib['PREVADMITTEDQUOTE'])
+
+##################################getting data  for chart####################################
+@app.route('/chart/', methods=['GET'])
+def cha():
+    cursor = conn.cursor()
+    user_id = session['user_id']
+    try:
+        rows = cursor.execute("SELECT date, Invested, PortfolioCost FROM Portfolio.dbo.StatAgregated where User_id =? ORDER BY date ASC", user_id).fetchall()
+    except Exception as err:
+        return '', 400
+    stats = []
+    for row in rows:
+        stats.append({"date": row.date,
+                      "invested": row.Invested,
+                      "portfolioCost": row.PortfolioCost})
+
+
+    return json.dumps(stats)
+
+##################################getting shares list with prices####################################
+
 
 
 
