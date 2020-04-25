@@ -13,22 +13,22 @@ function App() {
   const [isChartGoogle, setChartGoogle] = useState(<div></div>);
   
 
-/*
+
   function showHome() {
     setHome(<div>
                 <Currency currency='EUR'/>
                 <Currency currency='USD'/>
             </div>);
     setChartGoogle(<div></div>);
-  }
-  */
+  } 
+  
 
- function showHome() {
+ /* function showHome() {
   setHome(<div>
               rrrrrr
           </div>);
   setChartGoogle(<div></div>);
-}
+} */
 
   function showChartGoogle() {
     setChartGoogle(<ChartGoogle />);
