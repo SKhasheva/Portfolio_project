@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/css/main.f8808b1c.chunk.css",
+    "main.js": "/js/main.f47bde55.chunk.js",
+    "main.js.map": "/js/main.f47bde55.chunk.js.map",
+    "runtime-main.js": "/js/runtime-main.a9cffe6c.js",
+    "runtime-main.js.map": "/js/runtime-main.a9cffe6c.js.map",
+    "js/2.187cd94b.chunk.js": "/js/2.187cd94b.chunk.js",
+    "js/2.187cd94b.chunk.js.map": "/js/2.187cd94b.chunk.js.map",
+    "../app/web/arik.html": "/../app/web/arik.html",
+    "css/main.f8808b1c.chunk.css.map": "/css/main.f8808b1c.chunk.css.map",
+    "js/2.187cd94b.chunk.js.LICENSE.txt": "/js/2.187cd94b.chunk.js.LICENSE.txt",
+    "precache-manifest.a53c1c6bb426a2920fd445ea1589f7a0.js": "/precache-manifest.a53c1c6bb426a2920fd445ea1589f7a0.js",
+    "service-worker.js": "/service-worker.js"
+  },
+  "entrypoints": [
+    "js/runtime-main.a9cffe6c.js",
+    "js/2.187cd94b.chunk.js",
+    "css/main.f8808b1c.chunk.css",
+    "js/main.f47bde55.chunk.js"
+  ]
+}
