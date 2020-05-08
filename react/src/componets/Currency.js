@@ -1,18 +1,18 @@
 
-import React, { Component, useEffect } from 'react';
+import React, { Component} from 'react';
 
 class Currency extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            exchangeRate: [],
+            exchangeRate: []
         };
       }
     
 
 componentDidMount() {
     //const url = 'https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=ILS&apikey=PA9D235Y6KPZ46HS';
-    console.log(this.props.svet);
+    //console.log(this.props.svet);
     const url = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${this.props.currency}&to_currency=ILS&apikey=PA9D235Y6KPZ46HS`;
 
     fetch(url)
@@ -30,7 +30,6 @@ componentDidMount() {
 render() {
     return (
         <div className='ExchangeRate'>
-            tttttttttttttttttt
             <br />
             <br />
             <table >

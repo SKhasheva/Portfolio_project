@@ -3,6 +3,8 @@ import React, { useState }  from 'react';
 import './css/App.css';
 import ChartGoogle from './componets/ChartGoogle';
 import Currency from './componets/Currency';
+import DetailedPortfolio from './componets/DetailedPortfolio';
+//import Data from './componets/Data';
 
 
 
@@ -11,6 +13,7 @@ function App() {
 
   const[isHome, setHome] = useState(<div></div>);
   const [isChartGoogle, setChartGoogle] = useState(<div></div>);
+  const [isDetails, setDetails] = useState(<div></div>);
   
 
 
@@ -20,6 +23,7 @@ function App() {
                 <Currency currency='USD'/>
             </div>);
     setChartGoogle(<div></div>);
+    setDetails(<div></div>)
   } 
   
 
@@ -33,6 +37,15 @@ function App() {
   function showChartGoogle() {
     setChartGoogle(<ChartGoogle />);
     setHome(<div></div>);
+    setDetails(<div></div>)
+  }
+
+
+  function showDetails() {
+    setChartGoogle(<div></div>);
+    setHome(<div></div>);
+    setDetails(<DetailedPortfolio />)
+    //console.log(new Data().render())
   }
 
   return (
@@ -51,7 +64,7 @@ function App() {
                 </li>
                 <li></li>
                 <li>
-                    <a href="#Details" onClick={<div></div>}>Details</a>
+                    <a href="#Details" onClick={showDetails}>Details</a>
                 </li>
                 <li></li>
                 <li>
@@ -64,7 +77,8 @@ function App() {
       </header> 
       <br />
       {isHome}
-      {isChartGoogle} 
+      {isChartGoogle}
+      {isDetails} 
     
     </div>
   )

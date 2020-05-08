@@ -21,16 +21,21 @@ import Media from 'react-media';
 npm install --save react-media
 
 npm i react-google-charts
+/pip install urllib3
+
 
 ?https://www.zingchart.com/docs/api/methods
 npm install zingchart-react
 
+build react:
+(cd -)
+cd /c/Users/svkhashe/git/backend/react
+npm run build
 
-Issue Description: Customer has created root (tenant) Management Group. But ACM doesn't show it because it contains some not supported subscriptions (Access to AAD) which have no cost. 
+start python
+(cd -)
+/c/Users/svkhashe/git/backend
+ python -m flask run
 
-After discussion with PM, he advised opening bug:
 
-[Yesterday 11:10 PM] Michael Flanakin
-Please escalate. I see 2 bugs that need to be resolved:
-We should add support for 110P subscriptions. They have no cost and can be ignored.
-We need to return a partial response with an error when one or more subscriptions are not supported within the management group.
+

@@ -2,40 +2,59 @@ import React, {Component} from 'react';
 //import Media from 'react-media';
 import Chart from "react-google-charts";
 
-function ChartGoogle() {
-    return (
+class ChartGoogle extends Component {
+  constructor() {
+    super();
+    this.state = {
+      data : []
+    };
+  }
+
+  componentDidMount() {
+    
+    const url = 'http://127.0.0.1:5000/chart/';
+    fetch(url)
+    .then(
+      (response) => {
+        return response.json();
+      })
+    .then(json => {
+      console.log(json)
+      this.setState({
+        data: json
+      })
+    })
+    .catch((error) => console.log(error));
+  }
+
+    render() {
+
+      let dataChart= [
+        [
+          'Date',
+          'Invested',
+          'Portfolio',
+        ]
+      ]
+      ;
+
+      for (let element of this.state.data) {
+        dataChart.push([element["date"], element["invested"], element["portfolioCost"]])
+      }
+
+
+      return (
 
         <div>
             
-       
-        
         <Chart
         
         height={'500px'}
         chartType="Line"
         loader={<div>Loading Chart</div>}
-        data={[
-          [
-            'Day',
-            'Guardians of the Galaxy',
-            'The Avengers',
-            'Transformers: Age of Extinction',
-          ],
-          [1, 37.8, 80.8, 41.8],
-          [2, 30.9, 69.5, 32.4],
-          [3, 25.4, 57, 25.7],
-          [4, 11.7, 18.8, 10.5],
-          [5, 11.9, 17.6, 10.4],
-          [6, 8.8, 13.6, 7.7],
-          [7, 7.6, 12.3, 9.6],
-          [8, 12.3, 29.2, 10.6],
-          [9, 16.9, 42.9, 14.8],
-          [10, 12.8, 30.9, 11.6],
-          [11, 5.3, 7.9, 4.7],
-          [12, 6.6, 8.4, 5.2],
-          [13, 4.8, 6.3, 3.6],
-          [14, 4.2, 6.2, 3.4],
-        ]}
+
+        data = {dataChart}
+
         options={{
           chart: {
             title: 'Box Office Earnings in First Two Weeks of Opening',
@@ -47,5 +66,6 @@ function ChartGoogle() {
       </div>
     );
   };
+}
   
 export default ChartGoogle;
