@@ -1,5 +1,5 @@
 
-import React, { useState }  from 'react';
+import React, { useState, useEffect }  from 'react';
 import './css/App.css';
 import ChartGoogle from './componets/ChartGoogle';
 import Currency from './componets/Currency';
@@ -14,7 +14,7 @@ function App() {
   const[isHome, setHome] = useState(<div></div>);
   const [isChartGoogle, setChartGoogle] = useState(<div></div>);
   const [isDetails, setDetails] = useState(<div></div>);
-  
+  const [userName, setUserName] = useState('');
 
 
   function showHome() {
@@ -26,13 +26,6 @@ function App() {
     setDetails(<div></div>)
   } 
   
-
- /* function showHome() {
-  setHome(<div>
-              rrrrrr
-          </div>);
-  setChartGoogle(<div></div>);
-} */
 
   function showChartGoogle() {
     setChartGoogle(<ChartGoogle />);
@@ -48,9 +41,45 @@ function App() {
     //console.log(new Data().render())
   }
 
+  //logout
+  function handleLogout() {
+    const url = 'http://127.0.0.1:5000/logout/';
+    fetch(url)
+    .then(
+      (response) => {
+        return response.json();
+      })
+    .then(json => {
+      return json
+    })
+    .catch((error) => console.log(error));
+  }
+
+  //get user name
+  useEffect(() =>{
+    const url = 'http://127.0.0.1:5000/username/';
+    fetch(url)
+    .then(
+      (response) => {
+        return response.text();
+      })
+    .then(json => {
+      setUserName(json);
+    })
+    .catch((error) => console.log(error));
+  })
+
   return (
     <div>
      <header id="grid">
+
+          <div id="user" >
+          You are loged as {userName}
+           <a id="logout" href="http://127.0.0.1:5000/" onClick={handleLogout}> LogOut</a>
+          </div>
+
+          
+
         <nav>
             <a href="" id="menu-icon"></a>
             <ul>
@@ -79,6 +108,7 @@ function App() {
       {isHome}
       {isChartGoogle}
       {isDetails} 
+      
     
     </div>
   )
@@ -86,40 +116,3 @@ function App() {
 }
 
 export default App;
-
-
-
-  
-
-
-
-/*
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
-
-export default App;
-*/
-
-

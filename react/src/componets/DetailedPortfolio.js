@@ -8,9 +8,11 @@ class DetailedPortfolio extends Component {
         this.state = {
             myShares : [],
             mySharesValues: [],
+            listSharesMOEX: [],
             newShares: [],
-            sharesValues: [],
-            addList: []
+            newSharesValues: [],
+            addList: [],
+            showTableHeader: false
         };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -24,7 +26,6 @@ class DetailedPortfolio extends Component {
             return response.json();
           })
         .then(json => {
-          console.log(json)
           this.setState({
             myShares: json
           })
@@ -38,9 +39,9 @@ class DetailedPortfolio extends Component {
             return response.json();
           })
         .then(json => {
-          console.log(json)
+          json.unshift({"name":"","price":"","ticker":"Choose from the list"})
           this.setState({
-            newShares: json
+            listSharesMOEX: json
           })
         })
         .catch((error) => console.log(error));
@@ -48,33 +49,32 @@ class DetailedPortfolio extends Component {
       }  
 
       
-
-      handleChange(i, event) {
-        let values = [...this.state.mySharesValues];
+/*
+      handleChange2(i, event) {
+        let values = [...this.state.newSharesValues];
         values[i] = event.target.value;
         this.setState({
-            myShares: this.state.myShares, 
-            mySharesValues: values,
-            newShares: this.state.newShares,
-            sharesValues: this.state.sharesValues
+          
+            newSharesValues: values
 
          });
       } 
-      
-      
+*/
+    
 
-/*
-     handleChange(i, event) {
-        let values = [...this.state.values];
-        values[i] = event.target.value;
-        
-         const val = [...this.target.values];
-         val[i] = event.target.value;
-         this.setState({
-             [name]: val
-         });
-      } 
-      */
+      handleChange(i, event) {
+        let values = (event.target.name === 'mySharesValues'? [...this.state.mySharesValues]: [...this.state.newSharesValues]) 
+
+          values[i] = event.target.value;
+          let name = event.target.name;
+          this.setState({
+              [name]: values
+          })
+         console.log(this.state.mySharesValues);
+         console.log(this.state.newSharesValues);
+
+      }
+      
 
 
 // table with Portfolio
@@ -87,16 +87,15 @@ class DetailedPortfolio extends Component {
       createUI(){
             const classState = this
           return this.state.myShares.map((row, i) =>
-            <div key={i}>
-                <tr>
+            <tr key={i}>
                 <td>{row.ticker}</td>
                 <td>{row.cost}</td>
                 <td>{row.cnt}</td>
                 <td>{row.price}</td>
                 <td>{row.curcost}</td>
-                <td><input name='values' type="number" value={classState.state.mySharesValues[i]||''} onChange={classState.handleChange.bind(this, i)}/></td>
-                </tr>   
-            </div>
+                <td><input name='mySharesValues' type="number" value={classState.state.mySharesValues[i]||''} onChange={classState.handleChange.bind(this, i)}/></td>
+            </tr>   
+           
           )
       }
 
@@ -104,10 +103,12 @@ class DetailedPortfolio extends Component {
 
 
 
+
+
 selectOptions() {
 
     const classState = this;
-    let shares = classState.state.newShares;
+    let shares = classState.state.listSharesMOEX;
     let optionItems = shares.map((el) =>
         <option key={el.ticker}>{el.ticker} - {el.price}</option>
     );
@@ -116,84 +117,110 @@ selectOptions() {
 }
 
 
-
-
-
-
 createUIForNew(){
     const classState = this
-    return classState.state.sharesValues.map((el, i) => 
-        <div key={i}>
-           <select value={classState.state.addList[i]} >
+    return classState.state.newSharesValues.map((el, i) => 
+        <tr key={i}>
+          <td> <select  onChange={classState.handleNew.bind(this, i)} >
            {classState.selectOptions()}
             </select> 
-            <input type="number" value={classState.state.sharesValues[i]||''} onChange={classState.handleNew.bind(this, i)}/>
+            </td>
+            <td>
+            <input type="number" name='newSharesValues' min='0' value={classState.state.newSharesValues[i]||''} onChange={classState.handleChange.bind(this, i)}/>
+            </td>
+            <td>
            <input type='button' value='remove' onClick={classState.removeClick.bind(this, i)}/>
-        </div>          
+            </td>
+        </tr>          
     )
  }
 
  handleNew(i, event) {
-    let sharesValues = [...this.state.sharesValues];
-    sharesValues[i] = event.target.value;
-    this.setState({  myShares: this.state.myShares, 
-        mySharesValues : this.state.myShares,
-        newShares: this.state.newShares,
-        sharesValues });
+    let shares = [...this.state.newShares];
+    let val = event.target.value;
+    shares[i] = {ticker: val.substring(0, 5), price: val.substring(7)};
+    
+    this.setState({  //myShares: this.state.myShares, 
+        //mySharesValues : this.state.mySharesValues,
+       // listSharesMOEX: this.state.listSharesMOEX,
+     newShares: shares});
  }
  
  addClick(){
    this.setState(prevState => ({
-    myShares: this.state.myShares, 
-    mySharesValues : this.state.myShares,
-    newShares: this.state.newShares,
-    sharesValues: [...prevState.sharesValues, '']}))
+    showTableHeader: true,
+   // myShares: this.state.myShares, 
+   // mySharesValues : this.state.mySharesValues,
+   // listSharesMOEX: this.state.listSharesMOEX,
+    newSharesValues: [...prevState.newSharesValues, '']}))
  }
  
  
  removeClick(i){
-    let sharesValues = [...this.state.sharesValues];
-    sharesValues.splice(i,1);
-    this.setState({ myShares: this.state.myShares, 
-        mySharesValues : this.state.myShares,
-        newShares: this.state.newShares,
-        sharesValues });
+    let newSharesValues = [...this.state.newSharesValues];
+    newSharesValues.splice(i,1);
+    this.setState({
+        //myShares: this.state.myShares, 
+        //mySharesValues : this.state.mySharesValues,
+        //listSharesMOEX: this.state.listSharesMOEX,
+        newSharesValues });
  }
  
      
 
-
-
-
-
-
       calculateInvested(){
+        // calculated the total money that would be invested
           let money=0.0;
+          // calculating cost of added/removed shares from portfolio
           for (let i=0; i<this.state.mySharesValues.length; i++) {
               if (!Number.isNaN(parseFloat(this.state.mySharesValues[i]))) {
                 money += parseFloat(this.state.myShares[i].price)*parseFloat(this.state.mySharesValues[i])
               }
-            
-            //*this.state.values[i]
           }
-          
+          // calculating cost of the new shares
+          for (let i=0; i<this.state.newSharesValues.length; i++) {
+              if (!Number.isNaN(parseFloat(this.state.newSharesValues[i]))) {
+                  money += parseFloat(this.state.newShares[i].price)*parseFloat(this.state.newSharesValues[i])
+                    }
+                }
+            money = money.toFixed(2);
             return money;
       }
 
 
       render() {
      
-      
-
       return (
         <div>
             <br />
             <div></div>
-            {this.createUI()}
-            <div>{this.calculateInvested()}</div>
-            
+            <table>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Previous Cost</th>
+                    <th>Count</th>
+                    <th>Current Price (per 1)</th>
+                    <th>Current Cost</th>
+                    <th>Buy/Sell Amount</th>
+                </tr>               
+                {this.createUI()}
+            </table>
+           <br />
+           <table id='newShares' style={{display: this.state.showTableHeader ? 'block' : 'none' }}>
+               <tr>
+                   <th>Ticker with price</th>
+                   <th>Buy Amount</th>
+                   <th></th>
+               </tr>
+           
+
             {this.createUIForNew()}
+            </table>
             <input type='button' value='add new shares' onClick={this.addClick.bind(this)}/>
+            <br />
+            <hr />
+            <p>Total amount to invest:</p>
+            <div>{this.calculateInvested()}</div>
         </div>
     )
 
