@@ -4,6 +4,7 @@ import pyodbc
 import json
 import urllib3
 import xml.etree.ElementTree as ET
+from datetime import date
 
 @app.route('/')
 def index():
@@ -24,7 +25,7 @@ def get_login():
     try:
         row = cursor.execute('SELECT id, password, name FROM Portfolio.dbo.Users where Login = \'' + str(username)+'\'').fetchone()
     except Exception as err:
-        return '', 400
+        return err, 400
 
     #if User Name exists in data base and password is correct for that user
     #add User Name and User Id to session
@@ -67,6 +68,18 @@ def sharespricelist():
 
     return shareslist
 
+##################################getting last update date####################################
+def lastdate():
+    cursorone = conn.cursor()
+    user_id = session['user_id']
+
+    #####get last update date of portfolio
+    try:
+        maxtime = cursorone.execute("SELECT max(Date) FROM Portfolio.dbo.StatAgregated where User_id =?", user_id).fetchone()
+    except Exception as err:
+        return err, 400
+    return maxtime[0]
+
 ##################################getting current portfolio####################################
 # return detailed portfolio data as:
 # ticker - ticker of share
@@ -77,26 +90,33 @@ def portfolio():
     cursor = conn.cursor()
     user_id = session['user_id']
 
-    #####get last update date of portfolio
-    try:
-        maxtime = cursorone.execute("SELECT max(Date) FROM Portfolio.dbo.StatDetails where User_id =?", user_id).fetchone()
-    except Exception as err:
-        return '', 400
-
     #get current portfolio using last update date
     try:
-        rows = cursor.execute("SELECT ticker, cost, cnt FROM Portfolio.dbo.vw_StatDetails where User_id =? and Date =?",
-            user_id, maxtime[0]).fetchall()
+        rows = cursor.execute("SELECT ticker, cnt FROM Portfolio.dbo.vw_StatDetails where User_id =?",
+            user_id).fetchall()
     except Exception as err:
-        return '', 400
+        return err, 400
 
     portfoliodetails = []
     for row in rows:
         portfoliodetails.append(({"ticker": row.ticker.strip(),
-                           "cost": row.cost,
                            "cnt": row.cnt}))
 
-    return maxtime[0], portfoliodetails
+    return portfoliodetails
+
+##################################calculate current cost of portfolio####################################
+def currentportfoliocost():
+    sharelist = sharespricelist()
+    myportfolio = portfolio()
+    totalprice = 0.0
+
+    for element in myportfolio:
+        for active in sharelist:
+            if element["ticker"] == active["ticker"]:
+                totalprice += float(element["cnt"]) * float(active["price"])
+
+    return totalprice
+
 
 ##################################returning data  for chart####################################
 #return data for chart as:
@@ -109,27 +129,22 @@ def portfolio():
 def chartdata():
     cursor = conn.cursor()
     user_id = session['user_id']
+    maxdate = lastdate()
+
 
     #calculate the current cost of portfolio: multuply number of shares to their current prices
-    sharelist = sharespricelist()
-    myportfolio = portfolio()
-    totalprice = 0.0
-
-    for element in myportfolio[1]:
-        for active in sharelist:
-            if element["ticker"] == active["ticker"]:
-                totalprice += float(element["cnt"]) * float(active["price"])
+    totalprice = currentportfoliocost()
 
     # get the historical data
     try:
         rows = cursor.execute("SELECT date, Invested, PortfolioCost FROM Portfolio.dbo.StatAgregated where User_id =? ORDER BY date ASC", user_id).fetchall()
     except Exception as err:
-        return '', 400
+        return err, 400
 
     # forming data for chart. The current cost of portfolio was calculated above
     data = []
     for row in rows:
-        if row.date == myportfolio[0]:
+        if row.date == maxdate:
             data.append({"date": row.date,
                       "invested": row.Invested,
                       "portfolioCost": totalprice})
@@ -138,14 +153,13 @@ def chartdata():
                       "invested": row.Invested,
                       "portfolioCost": row.PortfolioCost})
 
-    str = json.dumps(data)
-    print(str, flush=True)
+    #str = json.dumps(data)
+   # print(str, flush=True)
     return jsonify(data)
 
 ##################################returning cdetailed portfolio data####################################
 # return detailed portfolio data as:
 # ticker - ticker of share
-# cost - previous cost of shares
 # cnt - number of shares
 # price - current price of share (taken from API)
 # curcost - cost of shares in Portfolio (count * current price)
@@ -157,7 +171,7 @@ def curpotfolio():
 
     # adding current price of shares to the output
     currentportfolio = []
-    for element in myportfolio[1]:
+    for element in myportfolio:
         for active in sharelist:
             if element["ticker"] == active["ticker"]:
                 element.update({"price": active["price"]})
@@ -177,6 +191,102 @@ def getshareslist():
 @app.route("/home")
 def my_index():
     return render_template("index.html", flask_token="Hello   world")
+
+##################################getting shares list with prices####################################
+def get_dataupdate():
+
+    data = request.get_json()
+    #data = [{'ticker': 'FXRU', 'price': '875.1', 'cnt': 1}, {'ticker': 'FXUS', 'price': '3780', 'cnt': 1}, {'invested': '4655.10'}]
+    # ?????  if (any(data)):
+    user_id = session['user_id']
+    # user_id = 1
+
+    params_detailed = []
+    today = date.today().isoformat()
+    investednow = 0
+    currportfoliocost = currentportfoliocost()
+    print('curr portfolio cost')
+    print(currportfoliocost)
+
+    cursorone = conn.cursor()
+    cursor = conn.cursor()
+    #get the last id form StatDetailed
+    try:
+        maxid = cursorone.execute("SELECT max(id) FROM Portfolio.dbo.StatDetails where User_id =?",user_id).fetchone()
+    except Exception as err:
+        return err, 400
+    id = maxid[0]
+
+    #preparing data for insert / update
+    for row in data:
+        if 'ticker' in row:
+            id += 1
+            params_detailed.append((id, today, user_id, row['ticker'], row['price'], row['cnt']))
+            investednow += int(row['cnt'])*float(row['price'])
+
+    print(params_detailed)
+
+    # insert into StatDetails new data
+    try:
+        conn.autocommit = False
+        cursor.executemany(
+            "insert into [Portfolio].[dbo].[StatDetails](Id, Date, User_id, Ticker, Price, Cnt) values (?, ?, ?, ?, ?, ?)",
+            params_detailed)
+    except pyodbc.DatabaseError as err:
+        print(err, flush=True)
+        conn.rollback()
+    else:
+        print('incerted to StatDetails', flush=True)
+        conn.commit()
+    finally:
+        conn.autocommit = True
+
+
+    cursorone = conn.cursor()
+    # check the date from StatAgregated
+    lastupdate = lastdate()
+    ####get last invested sum
+    try:
+        investedprev = cursorone.execute("SELECT Invested FROM Portfolio.dbo.StatAgregated where User_id =? and Date =?", user_id, lastupdate).fetchone()
+    except Exception as err:
+        return err, 400
+
+    invested = float(investedprev[0])+investednow
+    portfoliocost = investednow+currportfoliocost
+
+    if lastupdate == today:
+        #if the date is similar => update
+        try:
+            conn.autocommit = False
+            cursor.execute("update Portfolio.dbo.StatAgregated set PortfolioCost=?, Invested=? where user_id=? and date=?",
+                           portfoliocost, invested, user_id, today)
+        except pyodbc.DatabaseError as err:
+            conn.rollback()
+        else:
+            conn.commit()
+        finally:
+            conn.autocommit = True
+    else:
+        # if the date new => insert
+        try:
+            conn.autocommit = False
+            cursor.execute("insert into [Portfolio].[dbo].[StatAgregated](date, User_id, Invested, PortfolioCost)"
+                           "values (?, ?, ?, ?)", (today, user_id, invested, portfoliocost))
+        except pyodbc.DatabaseError as err:
+            print(err, flush=True)
+            conn.rollback()
+        else:
+            print(2, flush=True)
+            conn.commit()
+        finally:
+            conn.autocommit = True
+
+
+    return 'ok', 200
+
+
+
+
 
 
 

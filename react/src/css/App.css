@@ -1,23 +1,40 @@
 
 body{
+ background:  #ddd3e2;
+ font-family: 'Open Sans', sans-serif;
+
 	
   }
 
+  div#root {
+	  margin-top: 100px;
+
+  }
+
 p {
-	color: black;
+	color: #0C0A87;
 	text-decoration: none;
 	font-weight: bold;
+	font-size: large;
+}
+
+div#Details {
+	margin: 0 25%;
 }
 
 header {
 	background:  #660ed8;
+	border-bottom: 5px solid  #660ed8; 
+	/*
+	background:  #8860d0;
+	border-bottom: 5px solid #8860d0; */
 	width: 100%;
 	height: 76px;
 	position: fixed;
 	top: 0;
 	left: 0;
 	z-index: 100; 
-	border-bottom: 5px solid  #660ed8;
+	
 }
 ul {
 	list-style: none;
@@ -60,7 +77,7 @@ nav {
 		display: none;
 		position: absolute;
 		padding: 20px;
-    background:   #baa2da;
+    	background:   #baa2da;
 		right: 10px;
 		top: 65px;
 		width: 35%;
@@ -74,11 +91,12 @@ nav {
 		padding: 15px 0;
 		margin: 0;
 	}
+	div#Details {
+		margin: 1%;
+	}
 }
 
-div#root {
-	margin-top: 100px;
-}
+
 
 
 div#user {
@@ -86,5 +104,27 @@ div#user {
 	margin: 30px 20px 20px;
 	padding: 10px;
 	
+}
+
+
+
+td, th {
+	
+	border: 1px solid #0C0A87;
+	border-collapse: collapse;
+	padding: 10px;
+
+}
+
+input#Buy {
+
+	background-color: #660ed8;
+	color: white;
+	padding: 18px 40px;
+	text-align: center;
+	font-size: 16px;
+	font-weight: bold;
+	cursor: pointer;
+
 }
 

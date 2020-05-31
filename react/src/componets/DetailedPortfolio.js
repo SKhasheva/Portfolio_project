@@ -11,8 +11,9 @@ class DetailedPortfolio extends Component {
             listSharesMOEX: [],
             newShares: [],
             newSharesValues: [],
-            addList: [],
-            showTableHeader: false
+           // addList: [],
+            showTableHeader: false,
+            investedMoney: 0,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -80,19 +81,100 @@ class DetailedPortfolio extends Component {
 // table with Portfolio
 
       handleSubmit(event) {
-        alert('A name was submitted: ' + this.state.mySharesValues.join(', '));
-        event.preventDefault();
+          // make the list of old and new shares
+          // send it to backend
+          
+          let finalList=[];
+          let cnt = 0;
+
+          //Processing existing shares. If there is new count => sum previous and new shares
+          //if no new count => leave the olf count
+        
+          for (let i=0; i<this.state.myShares.length; i++) {
+            if (!Number.isNaN(parseFloat(this.state.mySharesValues[i]))) {
+                cnt = parseInt(this.state.myShares[i].cnt) + parseInt(this.state.mySharesValues[i])
+                finalList.push({
+                    'ticker': this.state.myShares[i].ticker,
+                    'price':  this.state.myShares[i].price,
+                    'cnt': cnt
+                        }) 
+            } else {
+                    finalList.push({
+                        'ticker': this.state.myShares[i].ticker,
+                        'price':  this.state.myShares[i].price,
+                        'cnt': parseInt(this.state.myShares[i].cnt)
+                        })
+            };
+            
+                console.log(finalList)   
+        }
+           
+           //Processing new shares list
+           //If user didn't enter any count => we do not add this share to the list
+
+           for (let i=0; i<this.state.newShares.length; i++) {
+            if (!Number.isNaN(parseFloat(this.state.newSharesValues[i]))) {
+                finalList.push({
+                    'ticker': this.state.newShares[i].ticker,
+                    'price':  this.state.newShares[i].price,
+                    'cnt': parseInt(this.state.newSharesValues[i])
+                        }) 
+                } 
+            };
+
+            /// add invested
+            let money = this.calculateInvested();
+            finalList.push({
+              'invested': money
+            })
+
+            
+            
+            fetch('http://127.0.0.1:5000/dataupdate/',{
+        method: "POST",
+        body: JSON.stringify(finalList),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+      }).then((response)=>{
+           console.log(response);
+           console.log(response.status);
+      if (response.status === 200){
+        alert("Message Sent."); 
+        this.resetForm()
+      }else if(response.status === 400){
+        alert("Message failed to send.")
       }
+    })
+    
+/*
+            fetch('http://127.0.0.1:5000/dataupdate/', {
+                method: 'POST',
+                body: finalList,
+              });
+            */
+
+            console.log(finalList);
+            event.preventDefault();
+
+           // alert('Successful');
+
+
+
+    }   
+          
+    
+
 
       createUI(){
             const classState = this
           return this.state.myShares.map((row, i) =>
             <tr key={i}>
                 <td>{row.ticker}</td>
-                <td>{row.cost}</td>
                 <td>{row.cnt}</td>
                 <td>{row.price}</td>
-                <td>{row.curcost}</td>
+                <td>{row.curcost.toFixed(2)}</td>
                 <td><input name='mySharesValues' type="number" value={classState.state.mySharesValues[i]||''} onChange={classState.handleChange.bind(this, i)}/></td>
             </tr>   
            
@@ -191,13 +273,14 @@ createUIForNew(){
       render() {
      
       return (
-        <div>
+        <div id='Details'>
             <br />
             <div></div>
-            <table>
+            <form onSubmit={this.handleSubmit}>
+            <table >
                 <tr>
                     <th>Ticker</th>
-                    <th>Previous Cost</th>
+
                     <th>Count</th>
                     <th>Current Price (per 1)</th>
                     <th>Current Cost</th>
@@ -206,21 +289,24 @@ createUIForNew(){
                 {this.createUI()}
             </table>
            <br />
-           <table id='newShares' style={{display: this.state.showTableHeader ? 'block' : 'none' }}>
+           <table  id='newShares' style={{display: this.state.showTableHeader ? 'block' : 'none' }}>
                <tr>
                    <th>Ticker with price</th>
                    <th>Buy Amount</th>
                    <th></th>
                </tr>
-           
-
-            {this.createUIForNew()}
+              {this.createUIForNew()}
             </table>
             <input type='button' value='add new shares' onClick={this.addClick.bind(this)}/>
             <br />
             <hr />
+            <br />
             <p>Total amount to invest:</p>
             <div>{this.calculateInvested()}</div>
+            <br />
+            <hr />
+            <input id='Buy' type="submit" value="Buy Shares" />
+            </form>
         </div>
     )
 

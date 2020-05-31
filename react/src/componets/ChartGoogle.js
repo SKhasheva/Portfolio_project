@@ -50,18 +50,41 @@ class ChartGoogle extends Component {
         <Chart
         
         height={'500px'}
-        chartType="Line"
+        //chartType="Line"
+        chartType="LineChart"
         loader={<div>Loading Chart</div>}
+        
 
         data = {dataChart}
-
+        /*
         options={{
+          colors: ['#CDFB00', '#D700CD'],
           chart: {
-            title: 'Box Office Earnings in First Two Weeks of Opening',
-            subtitle: 'in millions of dollars (USD)',
-          },
+            title: 'Cost of Portfolio vs Invested money',
+            backgroundColor: '#D700CD',
+            /* subtitle: 'in millions of dollars (USD)', 
+         },
         }}
-        rootProps={{ 'data-testid': '3' }}
+
+        */
+       options={{
+        title: 'Cost of Portfolio vs Invested money',
+        
+        //titleTextStyle: {
+        //  color: '#a34f8b'
+        //},
+        
+        colors: ['#D700CD', '#1D19DB'],
+        backgroundColor: '#ddd3e2',
+        hAxis: {
+          title: 'Date',
+        },
+        vAxis: {
+          title: 'Cost',
+        },
+      }}
+        
+        rootProps={{ 'data-testid': '2' }}
       />
       </div>
     );

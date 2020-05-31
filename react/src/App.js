@@ -74,7 +74,7 @@ function App() {
      <header id="grid">
 
           <div id="user" >
-          You are loged as {userName}
+          {userName}     
            <a id="logout" href="http://127.0.0.1:5000/" onClick={handleLogout}> LogOut</a>
           </div>
 
