@@ -78,6 +78,7 @@ def lastdate():
         maxtime = cursorone.execute("SELECT max(Date) FROM Portfolio.dbo.StatAgregated where User_id =?", user_id).fetchone()
     except Exception as err:
         return err, 400
+
     return maxtime[0]
 
 ##################################getting current portfolio####################################
@@ -193,6 +194,7 @@ def my_index():
     return render_template("index.html", flask_token="Hello   world")
 
 ##################################getting shares list with prices####################################
+@app.route('/dataupdate/', methods=['POST'])
 def get_dataupdate():
 
     data = request.get_json()
@@ -212,7 +214,7 @@ def get_dataupdate():
     cursor = conn.cursor()
     #get the last id form StatDetailed
     try:
-        maxid = cursorone.execute("SELECT max(id) FROM Portfolio.dbo.StatDetails where User_id =?",user_id).fetchone()
+        maxid = cursorone.execute("SELECT max(id) FROM Portfolio.dbo.StatDetails").fetchone()
     except Exception as err:
         return err, 400
     id = maxid[0]
@@ -246,13 +248,17 @@ def get_dataupdate():
     # check the date from StatAgregated
     lastupdate = lastdate()
     ####get last invested sum
-    try:
-        investedprev = cursorone.execute("SELECT Invested FROM Portfolio.dbo.StatAgregated where User_id =? and Date =?", user_id, lastupdate).fetchone()
-    except Exception as err:
-        return err, 400
-
-    invested = float(investedprev[0])+investednow
-    portfoliocost = investednow+currportfoliocost
+    if (lastupdate):
+        try:
+            investedprev = cursorone.execute("SELECT Invested FROM Portfolio.dbo.StatAgregated where User_id =? and Date =?", user_id, lastupdate).fetchone()
+        except Exception as err:
+            return err, 400
+        invested = float(investedprev[0])+investednow
+        portfoliocost = investednow+currportfoliocost
+    else:
+        lastupdate = '15000101'
+        invested = investednow
+        portfoliocost = investednow
 
     if lastupdate == today:
         #if the date is similar => update

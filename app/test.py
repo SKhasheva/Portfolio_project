@@ -10,7 +10,8 @@ import xml.etree.ElementTree as ET
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=SVKHASHE-T470S;'
                       'Database=Test_tmp;'
-                      'Trusted_Connection=yes;')
+                      'Trusted_Connection=yes;',
+                      autocommit = False)
 
 
 '''
@@ -101,7 +102,7 @@ print(portfolio)
 def portfolio():
     cursorone = conn.cursor()
     cursor = conn.cursor()
-    user_id = 1
+    user_id = 2
 
     #get current portfolio using last update date
     try:
@@ -143,9 +144,12 @@ print()
 #for element in sharelist:
 #    print(element["ticker"])
 
+
+
+
 def chartdata():
     cursor = conn.cursor()
-    user_id = 1
+    user_id = 2
     maxdate = lastdate()
 
 
@@ -209,17 +213,23 @@ def currentportfoliocost():
 
 
 
+
+
+
 def lastdate():
     cursorone = conn.cursor()
     #user_id = session['user_id']
-    user_id=1
+    user_id = 2
+
 
     #####get last update date of portfolio
     try:
         maxtime = cursorone.execute("SELECT max(Date) FROM Portfolio.dbo.StatAgregated where User_id =?", user_id).fetchone()
     except Exception as err:
         return err, 400
-    return maxtime[0]
+
+    return  maxtime[0]
+
 
 
 def get_dataupdate():
@@ -228,7 +238,7 @@ def get_dataupdate():
     data = [{'ticker': 'FXRU', 'price': '875.1', 'cnt': 1}, {'ticker': 'FXUS', 'price': '3780', 'cnt': 1}, {'invested': '4655.10'}]
     # ?????  if (any(data)):
     # user_id = session['user_id']
-    user_id = 1
+    user_id = 2
 
     params_detailed = []
    # params_agr = []
@@ -314,7 +324,79 @@ def get_dataupdate():
 
     return
 
-x = get_dataupdate()
+
+def get_dataupdate2():
+
+    # data = request.get_json()
+    data = [{'ticker': 'FXRU', 'price': '875.1', 'cnt': 1}, {'ticker': 'FXUS', 'price': '3780', 'cnt': 1}, {'invested': '4655.10'}]
+    # ?????  if (any(data)):
+    # user_id = session['user_id']
+    user_id = 2
+
+    params_detailed = []
+   # params_agr = []
+    today = date.today().isoformat()
+    investednow = 0
+    currportfoliocost = currentportfoliocost()
+    print('curr portfolio cost')
+    print(currportfoliocost)
+
+    cursorone = conn.cursor()
+    cursor = conn.cursor()
+    #get the last id form StatDetailed
+    try:
+        maxid = cursorone.execute("SELECT max(id) FROM Portfolio.dbo.StatDetails where User_id =?",user_id).fetchone()
+    except Exception as err:
+        return err, 400
+    id = maxid[0]
+
+    #preparing data for insert / update
+    for row in data:
+        if 'ticker' in row:
+            id += 1
+            params_detailed.append((id, today, user_id, row['ticker'], row['price'], row['cnt']))
+            investednow += int(row['cnt'])*float(row['price'])
+
+    print(params_detailed)
+
+    # insert into StatDetails new data
+
+
+
+    cursorone = conn.cursor()
+    # check the date from StatAgregated
+    lastupdate = lastdate()
+    ####get last invested sum
+    try:
+        investedprev = cursorone.execute("SELECT Invested FROM Portfolio.dbo.StatAgregated where User_id =? and Date =?", user_id, lastupdate).fetchone()
+    except Exception as err:
+        return err, 400
+
+    invested = float(investedprev[0])+investednow
+    portfoliocost = investednow+currportfoliocost
+
+
+
+    try:
+        conn.autocommit = False
+        cursor.executemany(
+            "insert into [Portfolio].[dbo].[StatDetails](Id, Date, User_id, Ticker, Price, Cnt) values (?, ?, ?, ?, ?, ?)",
+            params_detailed)
+        cursor.execute("update Portfolio.dbo.StatAgregated set PortfolioCost=?, Invested=? where user_id=? and date=?",
+                       portfoliocost, invested, user_id, today)
+    except pyodbc.DatabaseError as err:
+        print(err, flush=True)
+        conn.rollback()
+    else:
+        print('incerted', flush=True)
+        conn.commit()
+    finally:
+        conn.autocommit = True
+
+    return
+
+
+
 
 
 #print(x)
@@ -323,6 +405,93 @@ x = get_dataupdate()
 
 
 #y = lastdate()
+
+
+def get_dataupdate3():
+
+    #data = request.get_json()
+    data = [{'ticker': 'FXRU', 'price': '875.1', 'cnt': 1}, {'ticker': 'FXUS', 'price': '3780', 'cnt': 1}, {'invested': '4655.10'}]
+    # ?????  if (any(data)):
+    #user_id = session['user_id']
+    user_id = 2
+
+    params_detailed = []
+    today = date.today().isoformat()
+    investednow = 0
+    currportfoliocost = currentportfoliocost()
+
+
+    cursorone = conn.cursor()
+    cursor = conn.cursor()
+
+    #get the last id form StatDetailed
+    try:
+        maxid = cursorone.execute("SELECT max(id) FROM Portfolio.dbo.StatDetails").fetchone()
+    except Exception as err:
+        return err, 400
+    id = maxid[0]
+
+    #preparing data for insert / update
+    for row in data:
+        if 'ticker' in row:
+            id += 1
+            params_detailed.append((id, today, user_id, row['ticker'], row['price'], row['cnt']))
+            investednow += int(row['cnt'])*float(row['price'])
+
+    # check the date from StatAgregated
+    lastupdate = lastdate()
+
+    ####get last invested sum if data exists for this user
+    if (lastupdate):
+        try:
+            investedprev = cursorone.execute("SELECT Invested FROM Portfolio.dbo.StatAgregated where User_id =? and Date =?", user_id, lastupdate).fetchone()
+        except Exception as err:
+            return err, 400
+        invested = float(investedprev[0])+investednow
+        portfoliocost = investednow+currportfoliocost
+    else:
+        #if no prev data exists => insert invested money
+        lastupdate = '15000101'
+        invested = investednow
+        portfoliocost = investednow
+
+    # insert/update data
+    try:
+        conn.autocommit = False
+        print('arik')
+        print(conn.autocommit)
+        cursor2 = conn.cursor()
+        #cursor2.fast_executemany = True
+        #cursor2.executemany(
+        cursor2.execute(
+            "insert into [Portfolio].[dbo].[StatDetails](Id, Date, User_id, Ticker, Price, Cnt) values (?, ?, ?, ?, ?, ?)",
+            params_detailed[0])
+            #params_detailed)
+
+        if lastupdate == today:
+            # if the date is similar => update
+            cursor2.execute(
+                "update Portfolio.dbo.StatAgregated set PortfolioCost=?, Invested=? where user_id=? and date=?",
+                portfoliocostt, invested, user_id, today)
+        else:
+            cursor2.execute("insert into [Portfolio].[dbo].[StatAgregated](date, User_id, Invested, PortfolioCost)"
+                           "values (?, ?, ?, ?)", (today, user_id, invested, portfoliocost))
+
+    except pyodbc.DatabaseError as err:
+        print(err, flush=True)
+        conn.rollback()
+    else:
+        print('incerted to StatDetails', flush=True)
+        conn.commit()
+    finally:
+        conn.autocommit = True
+
+    return
+
+x = get_dataupdate3()
+
+
+
 
 
 

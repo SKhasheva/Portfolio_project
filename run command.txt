@@ -38,4 +38,13 @@ start python
  python -m flask run
 
 
+git
+
+git status
+git add -A //to add all files
+git commit -m "frontend working / before writting to db"
+
+
+
+
 

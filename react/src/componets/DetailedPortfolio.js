@@ -89,21 +89,18 @@ class DetailedPortfolio extends Component {
 
           //Processing existing shares. If there is new count => sum previous and new shares
           //if no new count => leave the olf count
+
+          console.log(this.state.myShares)
+          console.log(this.state.mySharesValues)
         
           for (let i=0; i<this.state.myShares.length; i++) {
             if (!Number.isNaN(parseFloat(this.state.mySharesValues[i]))) {
-                cnt = parseInt(this.state.myShares[i].cnt) + parseInt(this.state.mySharesValues[i])
+                cnt = parseInt(this.state.mySharesValues[i])
                 finalList.push({
                     'ticker': this.state.myShares[i].ticker,
                     'price':  this.state.myShares[i].price,
                     'cnt': cnt
                         }) 
-            } else {
-                    finalList.push({
-                        'ticker': this.state.myShares[i].ticker,
-                        'price':  this.state.myShares[i].price,
-                        'cnt': parseInt(this.state.myShares[i].cnt)
-                        })
             };
             
                 console.log(finalList)   
@@ -279,29 +276,46 @@ createUIForNew(){
             <form onSubmit={this.handleSubmit}>
             <table >
                 <tr>
-                    <th>Ticker</th>
+                    <th className="tooltip">Ticker
+                      <span className="tooltiptext">Symbol of FTE used in Moscow Exchange</span>
+                    </th>
 
-                    <th>Count</th>
-                    <th>Current Price (per 1)</th>
-                    <th>Current Cost</th>
-                    <th>Buy/Sell Amount</th>
+                    <th className="tooltip">Count
+                      <span className="tooltiptext">Number of shares in portfolio</span>
+                    </th>
+                    <th className="tooltip">Current Price (per 1)
+                      <span className="tooltiptext">Current price of 1 share</span>
+                    </th>
+                    <th className="tooltip">Current Cost
+                      <span className="tooltiptext">Current cost in Portfolio according to MOEX price</span>
+                    </th>
+                    <th className="tooltip">Buy/Sell Amount
+                      <span className="tooltiptext">Incert positive number to buy or negative number to sell</span>
+                    </th>
                 </tr>               
                 {this.createUI()}
             </table>
            <br />
            <table  id='newShares' style={{display: this.state.showTableHeader ? 'block' : 'none' }}>
                <tr>
-                   <th>Ticker with price</th>
-                   <th>Buy Amount</th>
+                   <th className="tooltip">Ticker with price
+                    <span className="tooltiptext">Choose FTE from the list. Format: Ticket - Price</span>
+                   </th>
+                   <th className="tooltip">Buy Amount
+                    <span className="tooltiptext">Incert number of shares (only positive!) to buy</span>
+                   </th>
                    <th></th>
                </tr>
               {this.createUIForNew()}
             </table>
-            <input type='button' value='add new shares' onClick={this.addClick.bind(this)}/>
+            <input type='button'  value='add new shares' onClick={this.addClick.bind(this)}
+            />
             <br />
             <hr />
             <br />
-            <p>Total amount to invest:</p>
+            <p className="tooltip"> Total amount to invest:
+            <span className="tooltiptext">Total sum to invest</span>
+            </p>
             <div>{this.calculateInvested()}</div>
             <br />
             <hr />
