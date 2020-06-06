@@ -488,32 +488,244 @@ def get_dataupdate3():
 
     return
 
-x = get_dataupdate3()
+##################################################################
+#####################################login process######################################################################
+def model_get_login(username):
+    cursor = conn.cursor()
+    try:
+        row = cursor.execute(
+            'SELECT id, password, name FROM Portfolio.dbo.Users where Login = \'' + str(username) + '\'').fetchone()
+    except Exception as err:
+        return err, 400
+
+    return row.id, row.password, row.name
+
+##################################getting shares list with prices#######################################################
+def model_sharespricelist():
+    url = 'https://iss.moex.com/iss/engines/stock/markets/shares/boards/TQTF/securities.xml?iss.meta=off&iss.only=' \
+          'securities&securities.columns=SECID,LATNAME,PREVADMITTEDQUOTE'
+    http = urllib3.PoolManager()
+    r = http.request('GET', url)
+
+    return ET.fromstring(r.data)
+
+##################################getting last update date##############################################################
+def model_lastdate(user_id):
+    cursorone = conn.cursor()
+    try:
+        maxtime = cursorone.execute("SELECT max(Date) FROM Portfolio.dbo.StatAgregated where User_id =?", user_id).\
+            fetchone()
+    except Exception as err:
+        return err, 400
+
+    return maxtime[0]
+
+##################################getting current portfolio#############################################################
+def model_portfolio(user_id):
+    cursor = conn.cursor()
+    try:
+        rows = cursor.execute("SELECT ticker, cnt FROM Portfolio.dbo.vw_StatDetails where User_id =?",
+                              user_id).fetchall()
+    except Exception as err:
+        return err, 400
+
+    return rows
+
+##################################returning data  for chart#############################################################
+def model_chartdata(user_id):
+    cursor = conn.cursor()
+    try:
+        rows = cursor.execute("SELECT date, Invested, PortfolioCost FROM Portfolio.dbo.StatAgregated where User_id =?"
+                              " ORDER BY date ASC", user_id).fetchall()
+    except Exception as err:
+        return err, 400
+
+    return rows
+
+###################################################get last id##########################################################
+def model_lastid():
+    cursor = conn.cursor()
+    try:
+        maxid = cursor.execute("SELECT max(id) FROM Portfolio.dbo.StatDetails").fetchone()
+    except Exception as err:
+        return err, 400
+
+    return maxid[0]
+
+#################################################get ttoal invested sum#################################################
+def model_totalinvested(user_id, lastupdate):
+    cursor = conn.cursor()
+    try:
+        investedprev = cursor.execute("SELECT Invested FROM Portfolio.dbo.StatAgregated where User_id =? and Date =?",
+                                      user_id, lastupdate).fetchone()
+    except Exception as err:
+        return err, 400
+
+    return float(investedprev[0])
+
+#############################################################login process##############################################
+def controller_get_login(username, pas):
+    id, password, name = model_get_login(username)
+    if name and password.strip() == pas:
+        return name, id
+    else:
+        return
+
+###########################################getting shares list with prices##############################################
+# get list of shares with prices from Moscow Exchange (https://www.moex.com/en/)
+# ticker - ticker of share
+# name - Latin name of the share
+# price - last price for yesterday
+def controller_sharespricelist():
+    shareslist = []
+    sharelist_tmp = model_sharespricelist()
+    for child in sharelist_tmp[0][0]:
+        shareslist.append({"ticker": child.attrib['SECID'],
+                           "name": child.attrib['LATNAME'],
+                           "price":child.attrib['PREVADMITTEDQUOTE']})
+
+    return shareslist
+
+##################################################getting current portfolio#############################################
+# return detailed portfolio data as:
+# ticker - ticker of share
+# cost - previous cost of shares
+# cnt - number of shares
+def controller_portfolio(user_id):
+    portfolio_tmp = model_portfolio(user_id)
+    portfoliodetails = []
+    for row in portfolio_tmp:
+        portfoliodetails.append(({"ticker": row.ticker.strip(),
+                           "cnt": row.cnt}))
+
+    return portfoliodetails
+
+##################################returning cdetailed portfolio data####################################################
+def controller_curpotfolio(user_id):
+    sharelist = controller_sharespricelist()
+    myportfolio = controller_portfolio(user_id)
+    currentportfolio = []
+    for element in myportfolio:
+        for active in sharelist:
+            if element["ticker"] == active["ticker"]:
+                element.update({"price": active["price"]})
+                element.update({"curcost": int(element["cnt"])*float(active["price"])})
+                currentportfolio.append(element)
+
+    return currentportfolio
+
+##################################calculate current cost of portfolio###################################################
+def controller_currentportfoliocost(user_id):
+    myportfolio = controller_curpotfolio(user_id)
+    totalprice = 0.0
+    for element in myportfolio:
+        totalprice += float(element["cnt"]) * float(element["price"])
+
+    return totalprice
+
+##################################returning data  for chart#############################################################
+def controller_chartdata(user_id):
+    maxdate = model_lastdate(user_id)
+    totalprice = controller_currentportfoliocost(user_id)
+    data_temp = model_chartdata(user_id)
+    data = []
+
+    for row in data_temp:
+        if row.date == maxdate:
+            data.append({"date": row.date,
+                      "invested": row.Invested,
+                      "portfolioCost": totalprice})
+        else:
+            data.append({"date": row.date,
+                      "invested": row.Invested,
+                      "portfolioCost": row.PortfolioCost})
+
+    return data
 
 
 
 
 
+################################################update data in db#######################################################
+def controller_dataupdate(data, user_id):
+    print(data)
+    params_detailed = []
+    today = date.today().isoformat()
+    investednow = 0
+    currportfoliocost = controller_currentportfoliocost(user_id)
+    print(currportfoliocost, flush=True)
+    id = model_lastid()
+    lastupdate = model_lastdate(user_id)
+    print(lastupdate, flush=True)
+
+    # preparing data for insert / update
+    for row in data:
+        if 'ticker' in row:
+            id += 1
+            params_detailed.append((id, today, user_id, row['ticker'], row['price'], row['cnt']))
+            investednow += int(row['cnt']) * float(row['price'])
+
+    print(params_detailed)
+
+    if (lastupdate):
+        invested = model_totalinvested(user_id, lastupdate) + investednow
+        portfoliocost = investednow + currportfoliocost
+        print()
+    else:
+        #if no prev data exists => insert invested money
+        lastupdate = '15000101'
+        invested = investednow
+        portfoliocost = investednow
+
+    # insert/update data
+    model_dataupdate(params_detailed, user_id, lastupdate, today, portfoliocost, invested)
+
+    return
 
 
 
 
+################################################update data in db#######################################################
+def model_dataupdate(params_detailed, user_id, lastupdate, today, portfoliocost, invested):
+    try:
+        print(params_detailed)
+        print(user_id)
+        print(lastupdate)
+        print(today)
+        print(portfoliocost)
+        print(invested)
+
+        conn.autocommit = False
+        cursor = conn.cursor()
+        cursor.executemany(
+            "insert into [Portfolio].[dbo].[StatDetails](Id, Date, User_id, Ticker, Price, Cnt) "
+            "values (?, ?, ?, ?, ?, ?)", params_detailed)
+        if lastupdate == today:
+            #if there was update today => update
+            cursor.execute(
+                "update Portfolio.dbo.StatAgregated set PortfolioCost=?, Invested=? where user_id=? and date=?",
+                portfoliocost, invested, user_id, today)
+        else:
+            # if there wasn't update today => insert
+            cursor.execute("insert into [Portfolio].[dbo].[StatAgregated](date, User_id, Invested, PortfolioCost)"
+                            "values (?, ?, ?, ?)", (today, user_id, invested, portfoliocost))
+    except pyodbc.DatabaseError as err:
+        print(err)
+        conn.rollback()
+    else:
+        print('data updated')
+        conn.commit()
+    finally:
+        conn.autocommit = True
+
+    return
 
 
+def get_dataupdate():
+    data = [{'ticker': 'FXRU', 'price': '875.1', 'cnt': 1}, {'ticker': 'FXUS', 'price': '3780', 'cnt': 1}, {'invested': '4655.10'}]
+    user_id = 2
+    controller_dataupdate(data, user_id)
+    return '', 200
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+x = get_dataupdate()
 

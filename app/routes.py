@@ -1,42 +1,34 @@
 from app import app
 from flask import json, request, redirect, send_from_directory, session, render_template, Response, jsonify
-import pyodbc
 import json
 import urllib3
-import xml.etree.ElementTree as ET
-from datetime import date
+import xml.etree.ElementTree as ET from datetime import date
+import controller
+
+
+url = 'http://127.0.0.1:5000'
 
 @app.route('/')
-def index():
+def controller_index():
     #print('sveta', flush=True)
     return app.send_static_file('login.html')
 
-conn = pyodbc.connect('Driver={SQL Server};'
-                      'Server=SVKHASHE-T470S;'
-                      'Database=Portfolio;'
-                      'Trusted_Connection=yes;')
+
+
+
 
 #####################################login process#####################################
 @app.route('/login/', methods=['POST'])
 def get_login():
-    cursor = conn.cursor()
     username = request.form.get('username')
     pas = request.form.get('password')
-    try:
-        row = cursor.execute('SELECT id, password, name FROM Portfolio.dbo.Users where Login = \'' + str(username)+'\'').fetchone()
-    except Exception as err:
-        return err, 400
-
-    #if User Name exists in data base and password is correct for that user
-    #add User Name and User Id to session
-    #and redirect to index page in case
-    #else redirect to loginError page
-    if row and row.password.strip() == pas:
-        session['username'] = row.name
-        session['user_id'] = row.id
-        return redirect('http://127.0.0.1:5000/home')
+    name, id = controller_get_login(username, pas)
+    if name:
+        session['username'] = name
+        session['user_id'] = id
+        return redirect(url)
     else:
-        return redirect('http://127.0.0.1:5000/loginError.html')
+        return redirect(url + '/loginError.html')
 
 ##################################return User Name from session####################################
 @app.route('/username/', methods=['GET'])
@@ -47,7 +39,7 @@ def username():
 @app.route('/logout/', methods=['GET'])
 def logout():
     session.clear()
-    return redirect('http://127.0.0.1:5000/login.html')
+    return redirect(url+'/login.html')
 
 ##################################getting shares list with prices####################################
 # get list of shares with prices from Moscow Exchange (https://www.moex.com/en/)
