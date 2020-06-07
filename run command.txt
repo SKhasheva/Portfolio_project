@@ -1,31 +1,15 @@
-svkhashe@svkhashe-t470s MINGW64 ~/git/backend (master)
-$ cd /c/Users/svkhashe/AppData/Local/Programs/Python/Python36-32/
 
-svkhashe@svkhashe-t470s MINGW64 ~/AppData/Local/Programs/Python/Python36-32
-$ /c/Users/svkhashe/AppData/Local/Programs/Python/Python36-32/Scripts/pip install flask
+git
 
-export FLASK_APP=project.py
-
-cd
-cd git/backend
-
-svkhashe@svkhashe-t470s MINGW64 ~/AppData/Local/Programs/Python/Python36-32
-$ python -m flask run
-
-
-React
-cd /c/Users/svkhashe/git/backend/app/web/app_portfolio
-
-
-import Media from 'react-media';
-npm install --save react-media
+git status
+git add -A //to add all files
+git commit -m "frontend working / before writting to db"
 
 npm i react-google-charts
 /pip install urllib3
 
 
-?https://www.zingchart.com/docs/api/methods
-npm install zingchart-react
+
 
 build react:
 (cd -)
@@ -38,11 +22,7 @@ start python
  python -m flask run
 
 
-git
 
-git status
-git add -A //to add all files
-git commit -m "frontend working / before writting to db"
 
 
 

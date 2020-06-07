@@ -4,7 +4,6 @@ import './css/App.css';
 import ChartGoogle from './componets/ChartGoogle';
 import Currency from './componets/Currency';
 import DetailedPortfolio from './componets/DetailedPortfolio';
-//import Data from './componets/Data';
 
 
 

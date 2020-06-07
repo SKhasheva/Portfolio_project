@@ -7,7 +7,7 @@ def controller_get_login(username, pas):
     if name and password.strip() == pas:
         return name, id
     else:
-        return
+        return False, 0
 
 ###########################################getting shares list with prices##############################################
 # get list of shares with prices from Moscow Exchange (https://www.moex.com/en/)
@@ -71,12 +71,12 @@ def controller_chartdata(user_id):
     for row in data_temp:
         if row.date == maxdate:
             data.append({"date": row.date,
-                      "invested": row.Invested,
-                      "portfolioCost": totalprice})
+                    "invested": row.Invested,
+                    "portfolioCost": totalprice})
         else:
             data.append({"date": row.date,
-                      "invested": row.Invested,
-                      "portfolioCost": row.PortfolioCost})
+                    "invested": row.Invested,
+                    "portfolioCost": row.PortfolioCost})
 
     return data
 

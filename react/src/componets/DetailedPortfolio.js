@@ -1,6 +1,4 @@
 import React, { Component}  from 'react';
-//import OneRow from './OneRow';
-//import myShares from './myShares';
 
 class DetailedPortfolio extends Component {
     constructor(props) {
@@ -11,7 +9,6 @@ class DetailedPortfolio extends Component {
             listSharesMOEX: [],
             newShares: [],
             newSharesValues: [],
-           // addList: [],
             showTableHeader: false,
             investedMoney: 0,
         };
@@ -19,8 +16,8 @@ class DetailedPortfolio extends Component {
     }
 
     componentDidMount() {
-
         const url = 'http://127.0.0.1:5000/portfolio_details';
+
         fetch(url)
         .then(
           (response) => {
@@ -34,6 +31,7 @@ class DetailedPortfolio extends Component {
         .catch((error) => console.log(error));
 
         const urlShares = 'http://127.0.0.1:5000/shareslist';
+
         fetch(urlShares)
         .then(
           (response) => {
@@ -49,19 +47,8 @@ class DetailedPortfolio extends Component {
 
       }  
 
-      
-/*
-      handleChange2(i, event) {
-        let values = [...this.state.newSharesValues];
-        values[i] = event.target.value;
-        this.setState({
-          
-            newSharesValues: values
 
-         });
-      } 
-*/
-    
+
 
       handleChange(i, event) {
         let values = (event.target.name === 'mySharesValues'? [...this.state.mySharesValues]: [...this.state.newSharesValues]) 
@@ -78,7 +65,6 @@ class DetailedPortfolio extends Component {
       
 
 
-// table with Portfolio
 
       handleSubmit(event) {
           // make the list of old and new shares
@@ -274,7 +260,7 @@ createUIForNew(){
             <br />
             <div></div>
             <form onSubmit={this.handleSubmit}>
-            <table >
+            <table style={{display: this.state.myShares.length ? 'block' : 'none' }}>
                 <tr>
                     <th className="tooltip">Ticker
                       <span className="tooltiptext">Symbol of FTE used in Moscow Exchange</span>
