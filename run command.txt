@@ -5,11 +5,16 @@ git status
 git add -A //to add all files
 git commit -m "frontend working / before writting to db"
 
+upload to github
+git push origin master
+
+
+install additionaly:
 npm i react-google-charts
 /pip install urllib3
 
 
-
+run application:
 
 build react:
 (cd -)
