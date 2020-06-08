@@ -39,9 +39,9 @@ class ChartGoogle extends Component {
 
       return (
         <div>
-      
-          <p style={{display: this.state.data.length ? 'none' : 'block'}}>No data to show</p>
-
+          <div id='user'>      
+            <p style={{display: this.state.data.length ? 'none' : 'block'}}>No data to show</p>
+          </div>
           <div style = {{display: this.state.data.length ? 'block' : 'none' }}>
           <Chart
             height={'500px'}

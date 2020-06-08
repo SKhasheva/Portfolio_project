@@ -8,11 +8,8 @@ class Currency extends Component {
             exchangeRate: []
         };
       }
-    
 
 componentDidMount() {
-    //const url = 'https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=USD&to_currency=ILS&apikey=PA9D235Y6KPZ46HS';
-    //console.log(this.props.svet);
     const url = `https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${this.props.currency}&to_currency=ILS&apikey=PA9D235Y6KPZ46HS`;
 
     fetch(url)
@@ -34,7 +31,7 @@ render() {
             <br />
             <table >
                 <tr>
-                    <th>Update time</th>
+                    <th>Last update time</th>
                     <td>{this.state.exchangeRate["6. Last Refreshed"]}</td>
                 </tr>
                 <tr>

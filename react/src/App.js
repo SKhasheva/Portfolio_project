@@ -2,37 +2,34 @@
 import React, { useState, useEffect }  from 'react';
 import './css/App.css';
 import ChartGoogle from './componets/ChartGoogle';
-import Currency from './componets/Currency';
+import ExchangeRate from './componets/ExchangeRate';
 import DetailedPortfolio from './componets/DetailedPortfolio';
 
 
 
 function App() {
 
-
-  const[isHome, setHome] = useState(<div></div>);
+  //Initial states
+  const[isHome, setHome] = useState(<ExchangeRate />);
   const [isChartGoogle, setChartGoogle] = useState(<div></div>);
   const [isDetails, setDetails] = useState(<div></div>);
   const [userName, setUserName] = useState('');
 
-
+  // Home screen
   function showHome() {
-    setHome(<div>
-                <Currency currency='EUR'/>
-                <Currency currency='USD'/>
-            </div>);
+    setHome(<ExchangeRate />);
     setChartGoogle(<div></div>);
     setDetails(<div></div>)
   } 
   
-
+  //Chart screen
   function showChartGoogle() {
     setChartGoogle(<ChartGoogle />);
     setHome(<div></div>);
     setDetails(<div></div>)
   }
 
-
+  //Detailed Portfolio screen
   function showDetails() {
     setChartGoogle(<div></div>);
     setHome(<div></div>);
@@ -77,8 +74,6 @@ function App() {
            <a id="logout" href="http://127.0.0.1:5000/" onClick={handleLogout}> LogOut</a>
           </div>
 
-          
-
         <nav>
             <a href="" id="menu-icon"></a>
             <ul>
@@ -101,17 +96,13 @@ function App() {
                 
             </ul>
         </nav>
-        
       </header> 
       <br />
       {isHome}
       {isChartGoogle}
       {isDetails} 
-      
-    
     </div>
   )
-
 }
 
 export default App;

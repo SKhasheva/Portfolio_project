@@ -3,10 +3,7 @@ import urllib3
 import xml.etree.ElementTree as ET
 
 ########################################################################################################################
-conn = pyodbc.connect('Driver={SQL Server};'
-                      'Server=SVKHASHE-T470S;'
-                      'Database=Portfolio;'
-                      'Trusted_Connection=yes;')
+conn = pyodbc.connect('Driver={SQL Server};Server=SVKHASHE-T470S;Database=Portfolio;Trusted_Connection=yes;')
 
 #####################################login process######################################################################
 def model_get_login(username):

@@ -11,6 +11,13 @@ body{
 
   }
 
+  div#user {
+	display: inline-block;
+	margin: 30px 20px 20px;
+	padding: 10px;
+	
+}
+
 p {
 	color: #0C0A87;
 	text-decoration: none;
@@ -22,12 +29,13 @@ div#Details {
 	margin: 0 25%;
 }
 
+div#ExchangeRate {
+	margin: 0 40%;
+}
+
 header {
 	background:  #660ed8;
 	border-bottom: 5px solid  #660ed8; 
-	/*
-	background:  #8860d0;
-	border-bottom: 5px solid #8860d0; */
 	width: 100%;
 	height: 76px;
 	position: fixed;
@@ -94,18 +102,10 @@ nav {
 	div#Details {
 		margin: 1%;
 	}
+	div#ExchangeRate {
+		margin: 17%;
+	}
 }
-
-
-
-
-div#user {
-	display: inline-block;
-	margin: 30px 20px 20px;
-	padding: 10px;
-	
-}
-
 
 
 td, th {
@@ -134,12 +134,12 @@ input#Buy {
   
 .tooltip .tooltiptext {
 	visibility: hidden;
-	width: 120px;
+	width: 150px;
 	background-color: #660ed8;
 	color: #fff;
 	text-align: center;
 	border-radius: 6px;
-	padding: 5px 0;
+	padding: 5px;
 	font-weight: normal;
 	font-size: large;
 	
