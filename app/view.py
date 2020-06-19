@@ -4,9 +4,6 @@ from flask import json, request, redirect, send_from_directory, session, render_
 
 
 ########################################################################################################################
-url = 'http://127.0.0.1:5000'
-
-########################################################################################################################
 @app.route('/')
 def controller_index():
     #print('sveta', flush=True)
@@ -25,9 +22,9 @@ def get_login():
     if name:
         session['username'] = name
         session['user_id'] = id
-        return redirect(url+'/home')
+        return redirect('/home')
     else:
-        return redirect(url + '/loginError.html')
+        return redirect('/loginError.html')
 
 ###################################################application page#####################################################
 @app.route("/home")
@@ -43,7 +40,23 @@ def username():
 @app.route('/logout/', methods=['GET'])
 def logout():
     session.clear()
-    return redirect(url+'/login.html')
+    return redirect('/login.html')
+
+#####################################sign up process######################################################################
+#if User Name exists in data base => redirect to signUpError
+#else insert new user to db
+@app.route('/signup/', methods=['POST'])
+def signup():
+    name = request.form.get('name')
+    username = request.form.get('username')
+    pas = request.form.get('password')
+    id = controller.controller_signup(name, username, pas)
+    if id:
+        session['username'] = name
+        session['user_id'] = id
+        return redirect('/home')
+    else:
+        return redirect('/newUserError.html')
 
 ##################################returning data  for chart#############################################################
 #return data for chart as:

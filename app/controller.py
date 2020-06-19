@@ -9,6 +9,17 @@ def controller_get_login(username, pas):
     else:
         return False, 0
 
+#############################################################signup process#############################################
+def controller_signup(name, username, pas):
+    id_, password_, name_ = model.model_get_login(username)
+    if (id_):
+        return False
+    else:
+        id = model.model_getmaxid() + 1
+        model.model_signup(id, name, username, pas)
+
+    return id
+
 ###########################################getting shares list with prices##############################################
 # get list of shares with prices from Moscow Exchange (https://www.moex.com/en/)
 # ticker - ticker of share

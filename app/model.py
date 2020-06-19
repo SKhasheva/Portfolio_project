@@ -1,9 +1,13 @@
+from app import app
 import pyodbc
 import urllib3
 import xml.etree.ElementTree as ET
 
+
 ########################################################################################################################
-conn = pyodbc.connect('Driver={SQL Server};Server=SVKHASHE-T470S;Database=Portfolio;Trusted_Connection=yes;')
+#conn = pyodbc.connect('Driver={SQL Server};Server=SVKHASHE-T470S;Database=Portfolio;Trusted_Connection=yes;')
+
+conn = pyodbc.connect(app.config.get('DB_CONN'))
 
 #####################################login process######################################################################
 def model_get_login(username):
@@ -14,7 +18,42 @@ def model_get_login(username):
     except Exception as err:
         return err, 400
 
-    return row.id, row.password, row.name
+    if (row):
+        return row.id, row.password, row.name
+    else:
+        return False, False, False
+
+#####################################signup process#####################################################################
+def model_signup(id, name, username, pas):
+    try:
+        conn.autocommit = False
+        cursor = conn.cursor()
+        cursor.execute(
+            "insert into [Portfolio].[dbo].[Users](Id, Name, Login, Password)"
+            "values (?, ?, ?, ?)", (id, name, username, pas))
+    except pyodbc.DatabaseError as err:
+        print(err)
+        conn.rollback()
+    else:
+        print('data updated')
+        conn.commit()
+    finally:
+        conn.autocommit = True
+
+    return
+
+#####################################get max id########################################################################
+def model_getmaxid():
+    cursor = conn.cursor()
+    try:
+        row = cursor.execute('SELECT MAX(id) FROM Portfolio.dbo.Users').fetchone()
+    except Exception as err:
+        return err, 400
+
+    if (row):
+        return row[0]
+    else:
+        return -2
 
 ##################################getting shares list with prices#######################################################
 def model_sharespricelist():

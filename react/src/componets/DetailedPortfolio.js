@@ -11,6 +11,7 @@ class DetailedPortfolio extends Component {
             newSharesValues: [],// count of new shares 
             showTableHeader: false,
             investedMoney: 0,
+            urlHref: window.location.href,
         };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -18,7 +19,8 @@ class DetailedPortfolio extends Component {
     componentDidMount() {
 
       // receive current portfolio for the user from the backend
-        const url = 'http://127.0.0.1:5000/portfolio_details';
+        //const url = 'http://127.0.0.1:5000/portfolio_details';
+        const url = this.state.urlHref.replace(window.location.pathname, '/portfolio_details');
 
         fetch(url)
         .then(
@@ -33,7 +35,8 @@ class DetailedPortfolio extends Component {
         .catch((error) => console.log(error));
 
         // recieve list of MOEX exchange shares with prices
-        const urlShares = 'http://127.0.0.1:5000/shareslist';
+        //const urlShares = 'http://127.0.0.1:5000/shareslist';
+        const urlShares = this.state.urlHref.replace(window.location.pathname, '/shareslist');
 
         fetch(urlShares)
         .then(
@@ -197,7 +200,9 @@ class DetailedPortfolio extends Component {
 
             
         // sending the formed list to the backend   
-        fetch('http://127.0.0.1:5000/dataupdate/',
+        const urlUpdate = this.state.urlHref.replace(window.location.pathname, '/dataupdate/');
+        //fetch('http://127.0.0.1:5000/dataupdate/',
+        fetch(urlUpdate,
         {
           method: "POST",
           body: JSON.stringify(finalList),

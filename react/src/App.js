@@ -14,6 +14,8 @@ function App() {
   const [isChartGoogle, setChartGoogle] = useState(<div></div>);
   const [isDetails, setDetails] = useState(<div></div>);
   const [userName, setUserName] = useState('');
+  const [urlHref] = useState(window.location.href);
+
 
   // Home screen
   function showHome() {
@@ -34,13 +36,13 @@ function App() {
     setChartGoogle(<div></div>);
     setHome(<div></div>);
     setDetails(<DetailedPortfolio />)
-    //console.log(new Data().render())
   }
 
   //logout
   function handleLogout() {
-    const url = 'http://127.0.0.1:5000/logout/';
-    fetch(url)
+    //const url_logout = 'http://127.0.0.1:5000/logout/';
+    const url_logout = urlHref.replace(window.location.pathname, '/logout/')
+    fetch(url_logout)
     .then(
       (response) => {
         return response.json();
@@ -53,8 +55,9 @@ function App() {
 
   //get user name
   useEffect(() =>{
-    const url = 'http://127.0.0.1:5000/username/';
-    fetch(url)
+    //const url_username = 'http://127.0.0.1:5000/username/';
+    const url_username = urlHref.replace(window.location.pathname, '/username/');
+    fetch(url_username)
     .then(
       (response) => {
         return response.text();
@@ -71,7 +74,7 @@ function App() {
 
           <div id="user" >
           {userName}     
-           <a id="logout" href="http://127.0.0.1:5000/" onClick={handleLogout}> LogOut</a>
+          <a id="logout" href={urlHref.replace(window.location.pathname, '')} onClick={handleLogout}> LogOut</a> 
           </div>
 
         <nav>
@@ -87,11 +90,11 @@ function App() {
                 </li>
                 <li></li>
                 <li>
-                    <a href="#Details" onClick={showDetails}>Details</a>
+                  <a href="#Details" onClick={showDetails}>Details</a> 
                 </li>
                 <li></li>
                 <li>
-                    <a href="#">Contact</a>
+                  {/*   <a href="#">Contact</a> */}
                 </li>
                 
             </ul>

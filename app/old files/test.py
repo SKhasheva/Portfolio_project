@@ -720,12 +720,72 @@ def model_dataupdate(params_detailed, user_id, lastupdate, today, portfoliocost,
 
     return
 
+def model_get_login(username):
+    cursor = conn.cursor()
+    try:
+        row = cursor.execute(
+            'SELECT id, password, name FROM Portfolio.dbo.Users where Login = \'' + str(username) + '\'').fetchone()
+    except Exception as err:
+        return err, 400
+
+    if (row):
+        return row.id, row.password, row.name
+    else:
+        return False, False, False
+
 
 def get_dataupdate():
     data = [{'ticker': 'FXRU', 'price': '875.1', 'cnt': 1}, {'ticker': 'FXUS', 'price': '3780', 'cnt': 1}, {'invested': '4655.10'}]
     user_id = 2
     controller_dataupdate(data, user_id)
     return '', 200
+########################################
+def model_signup(id, name, username, pas):
+    try:
+        conn.autocommit = False
+        cursor = conn.cursor()
+        cursor.execute(
+            "insert into [Portfolio].[dbo].[Users](Id, Name, Login, Password)"
+            "values (?, ?, ?, ?)", (id, name, username, pas))
+    except pyodbc.DatabaseError as err:
+        print(err)
+        conn.rollback()
+    else:
+        print('data updated')
+        conn.commit()
+    finally:
+        conn.autocommit = True
 
-x = get_dataupdate()
+    return
+
+
+def model_getmaxid():
+    cursor = conn.cursor()
+    try:
+        row = cursor.execute('SELECT MAX(id) FROM Portfolio.dbo.Users').fetchone()
+    except Exception as err:
+        return err, 400
+
+    if (row):
+        return row[0]
+    else:
+        return 0
+
+
+def controller_signup(name, username, pas):
+    id_, password_, name_ = model_get_login(username)
+    if (id_):
+        return False
+    else:
+        id = model_getmaxid() + 1
+        model_signup(id, name, username, pas)
+
+    return id
+
+x = controller_signup('Arik', 'Arik', 'q')
+print(x)
+
+
+
+
 

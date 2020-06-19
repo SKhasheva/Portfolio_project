@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="css/style_login.css">
-        <title>Login</title>
+        <title>Register</title>
     </head>
     <body>
 
@@ -16,13 +16,17 @@
                
             </header>  
             <section class="line"></section>
-            <p></p>
-            <form action="http://127.0.0.1:5000/login/" method="post">    
+            <p>Please insert the details:</p>
+            <form action="http://127.0.0.1:5000/signup/" method="post">    
                 <table>
+                    <tr>
+                        <td><label for="name">Name:</label></td>
+                        <td><input type="text" name="name" id="name" required></td>
+                    </tr>
                     <tr>
                         <td><label for="username">Login:</label></td>
                         <td><input type="text" name="username" id="username" required></td>
-                    </tr>
+                    </tr> 
                     <tr>
                         <td><label for="password">Password:</label></td>
                         <td><input type="password" name="password" id="password" required></td>
@@ -30,13 +34,15 @@
                     <tr>
                         <td id="subm" colspan="2">
                      <!--    <button type="submit" onclick=subFunction()>Sign in</button>  -->
-                            <input type="submit" value="Sign in">
-                        </td> 
+                        <input type="submit" value="Sign up">
+                        </td>
                     </tr>
-                </table>
+            </table>
             </form>
-            <br />
-            <a href="newUser.html">New user? Sign up</a>
+            <footer></footer>
+    
+                <!-- text, number, radio, checkbox, text area -->
         </div>
+
     </body>
 </html>

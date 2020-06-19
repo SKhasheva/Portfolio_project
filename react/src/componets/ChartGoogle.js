@@ -5,12 +5,14 @@ class ChartGoogle extends Component {
   constructor() {
     super();
     this.state = {
-      data : []
+      data : [],
+      urlHref: window.location.href,
     };
   }
 
   componentDidMount() {
-    const url = 'http://127.0.0.1:5000/chart/';
+    //const url = 'http://127.0.0.1:5000/chart/';
+   const url = this.state.urlHref.replace(window.location.pathname, '/chart/')
 
     fetch(url)
     .then(
